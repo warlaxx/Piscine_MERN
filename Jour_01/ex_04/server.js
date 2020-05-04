@@ -9,6 +9,4 @@ app.get('/name/', function(req, res) {
     res.send("Hello unkown");
 })
 
-app.listen(4242, function() {
-    console.log('ça fonctionne dans le port 4242')
-})
+app.listen(4242);
