@@ -3,8 +3,8 @@ db.createCollection( "students",
       [
          { lastname: { $type: "string" } },
          { firstname: { $type: "string" } },
-         { email: { $type: "string" } },
-         { phone: { $type: "string"  } },
+         { email: { $regex: /[\w-]+@([\w-]+\.)+[\w-]+/ } },
+         { phone: { $type: /[0-9]{10}/  } },
          { validated: { $in: [ "in progress", "validated", "rejected" ] } },
          { admin: { $type: "bool" } }
       ]
