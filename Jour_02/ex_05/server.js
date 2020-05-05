@@ -1,10 +1,8 @@
 const express = require('express')
 const app = express()
 fs = require('fs');
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
-
 var MongoClient = require('mongodb').MongoClient;
 
 MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology: true }, function(err, client) {
@@ -22,8 +20,6 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
     app.post('/', function(request, response) {
         console.log(request.body.student.lastname);
         console.log(request.body.student.email);
-
-
         db.collection('students').insertOne({
             lastname: request.body.student.lastname,
             firstname: request.body.student.firstname,
