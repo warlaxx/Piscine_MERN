@@ -96,7 +96,35 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
         } else {
             res.send("vous n'etes pas co")
         }
+    });
 
+    app.get('/admin/add', function(req, res) {
+        if (req.session.user == true) {
+            res.render('ajoutproduit');
+        } else {
+            res.send("vous n'avez pas acces")
+        }
+    });
+
+    app.post('/admin/add', function(req, res) {
+        if (req.session.user == true) {
+            db.collection('produits').createIndex({ "nom": 1 }, { unique: true });
+            db.collection('produits').insertOne({
+                nom: req.body.add.nom,
+                prix: req.body.add.prix,
+                description: req.body.add.description,
+            }, function(err, inserted) {
+                if (err) {
+                    this.error = 'Entrée produit impossible, veuillez remplir correctement les champs';
+                    res.status(400).redirect('/boutique');
+                } else {
+                    this.error = 'Entrée produit reussite';
+                    res.status(200).redirect('/boutique');
+                }
+            });
+        } else {
+            res.send("vous n'avez pas acces")
+        }
     });
 });
 

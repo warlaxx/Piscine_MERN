@@ -7,6 +7,7 @@ var ObjectId = require('mongodb').ObjectID;
 var MongoClient = require('mongodb').MongoClient;
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
+var sha1 = require('sha1');
 
 MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology: true }, function(err, client) {
     if (err) { console.log("Connection failed.") } else { console.log("Connection Successfull") };
@@ -35,7 +36,7 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
             db.collection('membres').insertOne({
                 login: req.body.register.login,
                 email: req.body.register.email,
-                password: req.body.register.password,
+                password: sha1(req.body.register.password),
                 type: false
             }, function(err, inserted) {
                 if (err) {
@@ -59,7 +60,7 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
     });
 
     app.post('/login', function(req, res) {
-        db.collection("membres").find({ $and: [{ email: req.body.login.email }, { password: req.body.login.password }] }).toArray(function(err, data) {
+        db.collection("membres").find({ $and: [{ email: req.body.login.email }, { password: sha1(req.body.login.password) }] }).toArray(function(err, data) {
             if (err) throw err;
             if (data[0]) {
                 res.status(200).send("Welcome " + data[0]["login"] + " !");
