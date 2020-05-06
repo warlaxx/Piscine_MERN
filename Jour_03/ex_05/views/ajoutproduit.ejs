@@ -8,10 +8,16 @@
 </head>
 
 <body>
-    <form method="post" action="/admin/add">
+    <form method="post" action="/admin/add/product">
         <label for="add[nom]">nom</label><input type="text" name="add[nom]"><br>
         <label for="add[prix]">prix</label><input type="prix" name="add[prix]"><br>
-        <label for="add[description]">description</label><input type="description" name="add[description]"><br>
+        <label for="add[description]">description</label><input type="text" name="add[description]"><br>
+        <select name="add[categorie]" id="cat-select">
+            <option value="">--Please choose an option--</option>
+            <%for (var categorie in categories){%>
+            <option value="<%= categories[categorie]['nom'] %>"><%= categories[categorie]['nom'] %></option>
+            <%}%>
+        </select>
         <input type="submit" value="Submit"></form>
 </body>
 

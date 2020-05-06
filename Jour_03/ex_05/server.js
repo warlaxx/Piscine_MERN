@@ -8,11 +8,26 @@ var MongoClient = require('mongodb').MongoClient;
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 var sha1 = require('sha1');
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 
+app.use(session({
+    key: 'user_sid',
+    secret: 'somerandonstuffs',
+    resave: true,
+    saveUninitialized: false,
+    cookie: { secure: false }
+}));
 
 MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology: true }, function(err, client) {
     if (err) { console.log("Connection failed.") } else { console.log("Connection Successfull") };
     var db = client.db('mern-pool');
+
+    app.set('trust proxy', 1) // trust first proxy
+
     app.get('/register', function(req, res) {
         this.error = ''
         res.render('register');
@@ -41,6 +56,7 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
         }
     });
 
+
     app.get('/login', function(req, res) {
         this.error = ''
         res.render('login');
@@ -50,7 +66,10 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
         db.collection("membres").find({ $and: [{ email: req.body.login.email }, { password: sha1(req.body.login.password) }] }).toArray(function(err, data) {
             if (err) throw err;
             if (data[0]) {
-                res.status(200).send("Welcome " + data[0]["login"] + " !");
+                req.session.user = data[0]["type"];
+                req.session.save();
+                console.log(req.session);
+                res.status(200).redirect("/boutique");
             } else {
                 this.error = 'Login and password doesnt match';
                 res.status(400).render('login');
@@ -59,42 +78,78 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
     });
 
     app.get('/boutique', function(req, res) {
-        this.error = '';
-        db.collection("produits").find({}).toArray(function(err, results) {
-
-            res.render('boutique', { results: results });
-        });
-
-    });
-
-    app.get('/admin/add/product', function(req, res) {
-        res.render('ajoutproduit');
-    });
-
-    app.post('/admin/add/product', function(req, res) {
-        db.collection('produits').createIndex({ "nom": 1 }, { unique: true });
-        db.collection('produits').insertOne({
-            nom: req.body.add.nom,
-            prix: req.body.add.prix,
-            description: req.body.add.description,
-        }, function(err, inserted) {
-            if (err) {
-                this.error = 'Entrée produit impossible, veuillez remplir correctement les champs';
-                res.status(400).redirect('/boutique');
-            } else {
-                this.error = 'Entrée produit reussite';
-                res.status(200).redirect('/boutique');
-            }
-        });
+        if (req.session.user != undefined) {
+            db.collection("produits").find({}).toArray(function(err, results) {
+                res.render('boutique', { results: results });
+            });
+        } else {
+            res.send("vous n'etes pas co")
+        }
     });
 
     app.get('/boutique/:id', function(req, res) {
-        db.collection("produits").find({ _id: ObjectId(req.params.id) }).toArray(function(err, results) {
+        if (req.session.user != undefined) {
+            db.collection("produits").find({ _id: ObjectId(req.params.id) }).toArray(function(err, results) {
+                res.render('produit', { results: results });
+            });
+        } else {
+            res.send("vous n'etes pas co")
+        }
+    });
 
-            console.log(results);
-            res.render('produit', { results: results });
+    app.get('/admin/add/product', function(req, res) {
+        console.log(req.session);
+        if (req.session.user == true) {
+            db.collection("categories").find({}).toArray(function(err, categories) {
+                res.render('ajoutproduit', { categories: categories });
+            });
+        } else {
+            res.send("vous n'avez pas acces")
+        }
+    });
+
+    app.post('/admin/add/product', function(req, res) {
+        console.log(req.session);
+        if (req.session.user == true) {
+            db.collection('produits').createIndex({ "nom": 1 }, { unique: true });
+            db.collection('produits').insertOne({
+                nom: req.body.add.nom,
+                prix: req.body.add.prix,
+                description: req.body.add.description,
+                categorie: req.body.add.categorie,
+            }, function(err, inserted) {
+                if (err) {
+                    this.error = 'Entrée produit impossible, veuillez remplir correctement les champs';
+                    res.status(400).redirect('/boutique');
+                } else {
+                    this.error = 'Entrée produit reussite';
+                    res.status(200).redirect('/boutique');
+                }
+            });
+        } else {
+            res.send("vous n'avez pas acces")
+        }
+    });
+
+    app.get('/admin/add/categorie', function(req, res) {
+        console.log(req.session);
+        if (req.session.user == true) {
+            res.render('ajoutcategorie');
+        } else {
+            res.send("vous n'avez pas acces")
+        }
+    });
+
+    app.post('/admin/add/categorie', function(req, res) {
+        db.collection('categories').insertOne({
+            nom: req.body.add.nom,
+        }, function(err, inserted) {
+            if (err) {
+                res.send("Echec de la creation");
+            } else {
+                res.send("Categorie crée");
+            }
         });
-
     });
 });
 

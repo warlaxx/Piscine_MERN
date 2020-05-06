@@ -13,6 +13,8 @@
         <th>nom</th>
         <th>prix</th>
         <th>description</th>
+        <th>categorie</th>
+
         <%for (var result in results){%>
             <tr>
                 <td>
@@ -26,6 +28,9 @@
                 </td>
                 <td>
                     <%=results[result]["description"]%>
+                </td>
+                <td>
+                    <%=results[result]["categorie"]%>
                 </td>
             </tr>
             <%}%>
