@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body> le produit
+
+    <table>
+        <th>nom</th>
+        <th>prix</th>
+        <th>description</th>
+        <th>categorie</th>
+
+        <%for (var result in results){%>
+            <tr>
+                <td>
+                    <a href="/boutique/<%= results[result]['_id'] %>">
+                        <%=results[result]["nom"]%>
+                    </a>
+                </td>
+
+                <td>
+                    <%=results[result]["prix"]%>
+                </td>
+                <td>
+                    <%=results[result]["description"]%>
+                </td>
+                <td>
+                    <%=results[result]["categorie"]%>
+                </td>
+            </tr>
+            <%}%>
+    </table>
+</body>
+
+</html>

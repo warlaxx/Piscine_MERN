@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login
+    </title>
+</head>
+
+<body>
+
+    <%= error %>
+        <form method="post" action="/login">
+            <label for="login[email]">email</label><input type="email" name="login[email]"><br>
+            <label for="login[password]">Password</label><input type="password" name="login[password]"><br>
+            <input type="submit" value="Submit"></form>
+</body>
+
+</html>
