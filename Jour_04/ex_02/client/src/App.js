@@ -26,19 +26,18 @@ class App extends Component {
     super();
     this.state = {
       produits: [],
-      login: '',
-      email: '',
-      password: '',
+      // login: '',
+      // email: '',
+      // password: '',
+      user: [],
     }
   }
 
   componentDidMount() {
     axios.get("http://localhost:5000/express_backend").then((data) => {
       this.setState({ produits: data.data.produits });
-
     })
   } 
-
 
   render() {
     return (
@@ -59,7 +58,11 @@ class App extends Component {
           <Route path="/Login">
             <Login />
           </Route>
-          <Route path="/">
+            <Route path="/dashboard">
+              <Dashboard/>
+            </Route>
+            <Route path="/register">
+          <Register />
           </Route>
         </Switch>
         </Router>
@@ -74,32 +77,69 @@ class App extends Component {
 }
 
 class Register extends Component {
-
-  handleUsernameSubmission = (e) => {
-      if(e) e.preventDefault();
-      const name = this.refs.usernameItem.value;
-      console.log('Your name is', name);
-    }
+  handleRegister = (e) => {
+     e.preventDefault();
+      var data = {
+          login: this.refs.usernameItem.value,
+          email: this.refs.emailItem.value,
+          password: this.refs.passwordItem.value,
+          passwordconf: this.refs.passwordconfItem.value,
+              }
+       var url = 'http://localhost:3000/register';
+       axios.post(url,data)
+        .then(response=>console.log(response))
+        .catch(e=>console.log(e))
+  }
 
   render() {
     return (
-      <form onSubmit={this.handleUsernameSubmission}>
+      <form onSubmit={this.handleRegister}>
             <label for="register[login]">Login</label><input type="text"  ref="usernameItem"/><br/>
-            <label for="register[email]">email</label><input type="email"  name="register[email]"/><br/>
-            <label for="register[password]">Password</label><input type="password" name="register[password]"/><br/>
-            <label for="register[passwordconfirm]">Password Confirm</label><input type="password" name="register[passwordconfirm]"/><br/>
+            <label for="register[email]">email</label><input type="email"  ref="emailItem" name="register[email]"/><br/>
+            <label for="register[password]">Password</label><input type="password" ref="passwordItem" name="register[password]"/><br/>
+            <label for="register[passwordconfirm]">Password Confirm</label><input type="password" ref="passwordconfItem" name="register[passwordconfirm]"/><br/>
             <input type="submit" value="Submit"/></form>)
   }
 }
 
 class Login extends Component {
+  handleLogin = (e) => {
+     e.preventDefault();
+      var data = {
+          email: this.refs.emailItem.value,
+          password: this.refs.passwordItem.value,
+              }
+       var url = 'http://localhost:3000/login';
+       axios.post(url,data)
+        //  .then(response => alert(response.data)
+        //  )
+         .then(function (response) {
+           if (response.data == true) {
+             window.location = "/dashboard"
+           }
+           else {
+             alert ("Impossible de vous connecter, veillez réessayer")
+           }
+         })
+         .catch(e => console.log(e))
+    
+    
+  }
+
   render() {
     return (
- <form>
-            <label for="login[email]">email</label><input type="email" name="login[email]"/><br/>
-            <label for="login[password]">Password</label><input type="password" name="login[password]"/><br/>
+ <form onSubmit={this.handleLogin}>
+            <label for="login[email]">email</label><input type="email" ref="emailItem" name="login[email]"/><br/>
+            <label for="login[password]">Password</label><input type="password" ref="passwordItem" name="login[password]"/><br/>
             <input type="submit" value="Submit"/></form>)
   }
 }
 
+class Dashboard extends Component {
+  render() {
+    return (
+      <h1>Bienvenue !</h1>
+    )
+  }
+}
 export default App; 
