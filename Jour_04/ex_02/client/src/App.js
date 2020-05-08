@@ -11,7 +11,8 @@ import {
   useRouteMatch,
   useParams
 } from "react-router-dom";
-
+import Cookies from 'universal-cookie';
+const cookies = new Cookies();
 
 class SubComponent extends React.Component {
   render() {
@@ -49,21 +50,17 @@ class App extends Component {
             <Link class="nav-item nav-link" to="/register">Register</Link>
         
             <Link class="nav-item nav-link" to="/login">Login</Link>
+            <Link class="nav-item nav-link" to="/logout">Logout</Link>
+
           </div>
    </nav>
         <Switch>
-          <Route path="/register">
-          <Register />
-          </Route>
-          <Route path="/Login">
-            <Login />
-          </Route>
-            <Route path="/dashboard">
-              <Dashboard/>
-            </Route>
-            <Route path="/register">
-          <Register />
-          </Route>
+          <Route path="/register" component={Register} />
+          <Route path="/logout" component={Logout} />
+          <Route path="/Login" component={Login} />
+          <Route path="/dashboard" component={Dashboard}/>
+          <Route path="/register" component={Register} />
+          <Route path='/:handle' component={Dashboard} />
         </Switch>
         </Router>
         {/* <div>{this.state.produits.map((e) => {
@@ -76,7 +73,7 @@ class App extends Component {
   }
 }
 
-class Register extends Component {
+class Register extends React.Component {
   handleRegister = (e) => {
      e.preventDefault();
       var data = {
@@ -102,7 +99,7 @@ class Register extends Component {
   }
 }
 
-class Login extends Component {
+class Login extends React.Component {
   handleLogin = (e) => {
      e.preventDefault();
       var data = {
@@ -111,19 +108,19 @@ class Login extends Component {
               }
        var url = 'http://localhost:3000/login';
        axios.post(url,data)
-        //  .then(response => alert(response.data)
-        //  )
          .then(function (response) {
-           if (response.data == true) {
-             window.location = "/dashboard"
+           console.log(response);
+           if (response.data.good == true) {
+             cookies.set('id', response.data.data.id, { path: '/' });
+             cookies.set('type', response.data.data.type, { path: '/' });
+             cookies.set('login', response.data.data.login , { path: '/' });
+             window.location = "/"+response.data.data.login;
            }
            else {
              alert ("Impossible de vous connecter, veillez réessayer")
            }
          })
          .catch(e => console.log(e))
-    
-    
   }
 
   render() {
@@ -135,11 +132,31 @@ class Login extends Component {
   }
 }
 
-class Dashboard extends Component {
+class Dashboard extends React.Component {
+
   render() {
-    return (
-      <h1>Bienvenue !</h1>
-    )
+    console.log(cookies.get('id'));
+    console.log(cookies.get('type'));
+              console.log(cookies.get('login'));
+    if (cookies.get('id')) {
+      return (
+        <h1>Bienvenue {cookies.get('login')}!</h1>
+      )
+    }
+      else {
+        window.location = "/login"
+    }
+  }
+}
+
+class Logout extends React.Component {
+
+  render() {
+    cookies.remove('id');
+    cookies.remove('type');
+    cookies.remove('login');
+      return (  window.location = "/login" )
+    
   }
 }
 export default App; 

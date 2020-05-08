@@ -21,23 +21,6 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
     if (err) { console.log("Connection failed.") } else { console.log("Connection Successfull") };
     var db = client.db('mern-pool');
 
-    db.createCollection("membres", {
-        validator: {
-            $and: [
-                { id: { $type: "int" } },
-                { login: { $type: "string", $regex: /[\w]{5,20}/ } },
-                { email: { $type: "string", $regex: /[\w-]+@([\w-]+\.)+[\w-]+/ } },
-                { password: { $type: "string" } },
-                { type: { $type: "bool" } }
-            ]
-        }
-    })
-
-    app.get('/register', function(req, res) {
-        this.error = ''
-        res.render('register');
-    });
-
     app.post('/register', function(req, res) {
         db.collection('membres').createIndex({ "login": 1 }, { unique: true });
         if (req.body.password == req.body.passwordconf) {
@@ -61,16 +44,11 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
         }
     });
 
-    app.get('/login', function(req, res) {
-        this.error = ''
-        res.render('login');
-    });
-
     app.post('/login', function(req, res) {
         db.collection("membres").find({ $and: [{ email: req.body.email }, { password: sha1(req.body.password) }] }).toArray(function(err, data) {
             if (err) throw err;
             if (data[0]) {
-                res.send(true);
+                res.send({ good: true, data: { id: data[0]['_id'], type: data[0]['type'], login: data[0]['login'] } });
             } else {
                 this.error = 'Login and password doesnt match';
                 res.send(false);
@@ -78,20 +56,7 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
         });
     });
 
-    // app.post('/login', function(req, res) {
-    //     db.collection("membres").find({ $and: [{ email: req.body.login.email }, { password: sha1(req.body.login.password) }] }).toArray(function(err, data) {
-    //         if (err) throw err;
-    //         if (data[0]) {
-    //             res.status(200).send("Welcome " + data[0]["login"] + " !");
-    //         } else {
-    //             this.error = 'Login and password doesnt match';
-    //             res.status(400).render('login');
-    //         }
-    //     });
 
-
-
-    // });
 
     app.get('/express_backend', (req, res) => {
         db.collection("produits").find({}).toArray(function(err, results) {
