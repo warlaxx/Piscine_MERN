@@ -20,6 +20,29 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
     if (err) { console.log("Connection failed.") } else { console.log("Connection Successfull") };
     var db = client.db('mern-pool');
 
+    app.get('/', function(req, res) {
+        db.collection('billets').aggregate([{
+            $lookup:{
+                from: 'membres',
+                localField: 'user',
+                foreignField: '_id',
+                as: 'utilisateur'
+              }
+        },
+        {
+            $group: {
+                '_id': "$user",
+                'titre': { $first: '$titre' },
+                'contenu': { $first: '$contenu' },
+                'utilisateur': { $first: '$utilisateur' },
+
+            }
+        }
+    ]).toArray(function(err, results) {
+                res.send({ billets: results });
+        });
+    });
+
     app.post('/register', function(req, res) {
         db.collection('membres').createIndex({ "login": 1 }, { unique: true });
         if (req.body.password == req.body.passwordconf) {
@@ -99,17 +122,6 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
         });
     });
 
-    app.get('/', function(req, res) {
-        db.collection('billets').aggregate([{
-            $group: { _id: null, uniqueValues: { $addToSet: "$user" } }
-        }]).toArray(function(err, results) {
-            res.send({ billets: results[0]["uniqueValues"] });
-
-        });
-
-
-    });
-
     app.get('/all/:login', function(req, res) {
         db.collection("membres").find({ login: req.params.login }).toArray(function(err, data) {
             db.collection("billets").find({ user: data[0]["_id"] }).toArray(function(err, results) {
@@ -134,7 +146,7 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
             res.send({ commentaire: results[0] });
         });
     });
-    
+
     app.get('/:login/:id', function(req, res) {
         db.collection('billets').aggregate([{
                 $lookup: {
@@ -167,7 +179,7 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
     });
 
 
-  
+
 
 
 });

@@ -57,16 +57,46 @@ class App extends Component {
 }
 
 class Home extends React.Component { 
+  constructor() {
+    super();
+    this.state = {
+      user: [],
+      billets: [],
+    }
+  }
+
+  componentDidMount() {
+    axios.get("http://localhost:5000/").then((data) => {
+      this.setState({ billets: data.data.billets });
+    })
+  } 
+ 
   render() {     
 		return(
       <div>
-        home
-		
+        ici on voit les blogs 
+			{this.state.billets.map((e) => {
+          return (
+            <Blog id={e._id}  auteur={e.utilisateur[0].login}/>
+         )
+       })}
 			</div>
 		)
 	}
   
 }
+
+class Blog extends React.Component {
+  render() {
+    return (
+      <div className="container"> <div className="card">
+          <div className="card-header">
+          <a href={"http://localhost:3000/all/" + this.props.auteur}> Blog de {this.props.auteur}</a></div></div>
+      </div>
+      )
+   } 
+}
+
 
 class Register extends React.Component {
   handleRegister = (e) => {
@@ -370,7 +400,7 @@ class SeeAll extends React.Component {
   render() {     
 		return(
       <div>
-        "ici on voit les billets de " + {this.props.match.params.handle} + " ewewew"
+        ici on voit les billets 
         
 			{this.state.billets.map((e) => {
           return (
@@ -448,7 +478,7 @@ class DeleteBillet extends React.Component {
       axios.post(url,data)
         .then(function (response) {
           console.log(response);
-          if (response.data === true) {
+          if (response.data == true) {
             window.location = "/all/"+cookies.get('login');
           }
           else {
@@ -456,20 +486,19 @@ class DeleteBillet extends React.Component {
           }
         })
         .catch(e => console.log(e))
-
   }
 
   componentDidMount() {
-  axios.get("http://localhost:3000/billet/"+this.props.match.params.handle).then((data) => {
-    this.setState({ billets: data.data.billets });
-    console.log(this.state.billets.user);
+    axios.get("http://localhost:5000/billet/"+this.props.match.params.handle).then((data) => {
+    this.setState({ billets: data.data.billets[0] });
+    console.log(this.state.billets);
   });
   } 
 
   render() {
-   if (this.state.billets.user  !==  undefined)
+   if (this.state.billets.user  != undefined)
    {
-    if (this.state.billets.user === cookies.get('id'))
+    if (this.state.billets.user == cookies.get('id'))
     {
       return (
         <form onSubmit={this.handleSuppression}>
@@ -502,7 +531,7 @@ class DeleteCommentaire extends React.Component {
          axios.post(url,data)
         .then(function (response) {
           console.log(response);
-          if (response.data === true) {
+          if (response.data == true) {
             window.location = "/all/"+cookies.get('login');
           }
           else {
@@ -514,26 +543,25 @@ class DeleteCommentaire extends React.Component {
 
   componentDidMount() {
   axios.get("http://localhost:3000/commentaire/"+this.props.match.params.handle).then((data) => {
-    // this.setState({ commentaires: data.data.commentaire });
-    // this.setState({ billet: data.data.commentaire.billet[0] });
-    console.log(data)
+    this.setState({ commentaires: data.data.commentaire });
+    this.setState({ billet: data.data.commentaire.billet[0] });
+    console.log(this.state)
   });
   } 
 
   render() {
-    console.log(this.state.commentaires);
-  //  if (this.state.commentaires.de  !==  undefined && this.state.billet.user  !==  undefined)
-  //  { 
-  //   if ( (this.state.commentaires.de === cookies.get('login')) || cookies.get('id') ===  this.state.billet.user)
-  //     {
-  //       return (
-  //         <form onSubmit={this.handleSuppression}>
-  //          Voulez-vous supprimer ce commentaire ?
-  //         <input type="submit" value="Submit"/></form>)
-  //     } else {
-  //              window.location = "/"+cookies.get('login');
-  //     }
-  //  }
+   if (this.state.commentaires.de  != undefined && this.state.billet.user  != undefined)
+   { 
+    if ( (this.state.commentaires.de == cookies.get('login')) || cookies.get('id') ==  this.state.billet.user)
+      {
+        return (
+          <form onSubmit={this.handleSuppression}>
+           Voulez-vous supprimer ce commentaire ?
+          <input type="submit" value="Submit"/></form>)
+      } else {
+               window.location = "/"+cookies.get('login');
+      }
+   }
   return ('Pas les droit')
   }
 }
