@@ -45,7 +45,7 @@ class App extends Component {
           <Route path='/billet/delete/:handle' component={DeleteBillet} />
           <Route path='/commentaire/delete/:handle' component={DeleteCommentaire} />
           <Route path='/billet/create' component={CreateBillet} />
-          <Route path='/:login/:id' component={SeeOne} />
+          <Route path='/billet/:id' component={SeeOne} />
           <Route path='/:handle' component={Dashboard} />
           <Route path="/" component={Home} />
         </Switch>
@@ -105,7 +105,7 @@ class Login extends React.Component {
        axios.post(url,data)
          .then(function (response) {
            console.log(response);
-           if (response.data.good === true) {
+           if (response.data.good == true) {
              cookies.set('id', response.data.data.id, { path: '/' });
              cookies.set('type', response.data.data.type, { path: '/' });
              cookies.set('login', response.data.data.login , { path: '/' });
@@ -140,7 +140,7 @@ class Dashboard extends React.Component {constructor() {
               // console.log(cookies.get('login'));
     console.log( this.state );
     if (cookies.get('id')) {
-       if (cookies.get('login') === this.props.match.params.handle) {
+       if (cookies.get('login') == this.props.match.params.handle) {
          return (
           <div class="container">
           <h1>Bienvenue {cookies.get('login')}!</h1>
@@ -186,7 +186,7 @@ class CreateBillet extends React.Component {
     axios.post(url,data)
       .then(function (response) {
         console.log(response);
-        if (response.data === true) {
+        if (response.data == true) {
           window.location = "/all/"+cookies.get('login');
         }
         else {
@@ -213,7 +213,7 @@ class CreateBillet extends React.Component {
 
 class Billet extends React.Component {
   render() {
-   if (this.props.auteur === cookies.get('id')) 
+   if (this.props.auteur == cookies.get('id')) 
    {
       return (
       <div class="container"> <div class="card">
@@ -245,7 +245,7 @@ class Billet extends React.Component {
 
 class BilletDetails extends React.Component {
   render() {
-   if (this.props.auteur === cookies.get('id')) 
+   if (this.props.auteur == cookies.get('id')) 
    {
       return (
         <div class="container">      
@@ -297,7 +297,7 @@ class BilletDetails extends React.Component {
 class Comments extends React.Component {
  render() {
    console.log(this.props.id)
-   if(this.props.auteurarticle === cookies.get('id')) { 
+   if(this.props.auteurarticle == cookies.get('id')) { 
     return (  
       <div class="card">
       <div class="card-header">
@@ -374,7 +374,7 @@ class Edit extends React.Component {
     axios.post(url,data)
       .then(function (response) {
         console.log(response);
-        if (response.data === true) {
+        if (response.data == true) {
           window.location = "/all/"+cookies.get('login');
         }
         else {
@@ -419,7 +419,7 @@ class DeleteBillet extends React.Component {
       axios.post(url,data)
         .then(function (response) {
           console.log(response);
-          if (response.data === true) {
+          if (response.data == true) {
             window.location = "/all/"+cookies.get('login');
           }
           else {
@@ -427,20 +427,19 @@ class DeleteBillet extends React.Component {
           }
         })
         .catch(e => console.log(e))
-
   }
 
   componentDidMount() {
-  axios.get("http://localhost:3000/billet/"+this.props.match.params.handle).then((data) => {
-    this.setState({ billets: data.data.billets });
-    console.log(this.state.billets.user);
+    axios.get("http://localhost:5000/billet/"+this.props.match.params.handle).then((data) => {
+    this.setState({ billets: data.data.billets[0] });
+    console.log(this.state.billets);
   });
   } 
 
   render() {
-   if (this.state.billets.user!==undefined)
+   if (this.state.billets.user  != undefined)
    {
-    if (this.state.billets.user === cookies.get('id'))
+    if (this.state.billets.user == cookies.get('id'))
     {
       return (
         <form onSubmit={this.handleSuppression}>
@@ -473,7 +472,7 @@ class DeleteCommentaire extends React.Component {
          axios.post(url,data)
         .then(function (response) {
           console.log(response);
-          if (response.data === true) {
+          if (response.data == true) {
             window.location = "/all/"+cookies.get('login');
           }
           else {
@@ -487,13 +486,14 @@ class DeleteCommentaire extends React.Component {
   axios.get("http://localhost:3000/commentaire/"+this.props.match.params.handle).then((data) => {
     this.setState({ commentaires: data.data.commentaire });
     this.setState({ billet: data.data.commentaire.billet[0] });
+    console.log(this.state)
   });
   } 
 
   render() {
-   if (this.state.commentaires.de!==undefined && this.state.billet.user!==undefined)
+   if (this.state.commentaires.de  != undefined && this.state.billet.user  != undefined)
    { 
-    if ( (this.state.commentaires.de === cookies.get('login')) || cookies.get('id') ===  this.state.billet.user)
+    if ( (this.state.commentaires.de == cookies.get('login')) || cookies.get('id') ==  this.state.billet.user)
       {
         return (
           <form onSubmit={this.handleSuppression}>
@@ -516,9 +516,10 @@ class SeeOne extends React.Component {
     }
   }
     componentDidMount() {
-    axios.get("http://localhost:5000/"+this.props.match.params.login+"/"+this.props.match.params.id).then((data) => {
+    axios.get("http://localhost:5000/billet/"+this.props.match.params.id).then((data) => {
       this.setState({ billets: data.data.billets });
       console.log(this.state);
+      console.log('bitch')
     })
   } 
   

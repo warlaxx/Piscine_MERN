@@ -118,6 +118,23 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
         });
     });
 
+    app.get('/commentaire/:id', function(req, res) {
+        db.collection('comments').aggregate([{
+                $lookup: {
+                    from: "billets",
+                    localField: "pour",
+                    foreignField: "_id",
+                    as: "billet"
+                }
+            },
+            {
+                $match: { _id: ObjectId(req.params.id) }
+            }
+        ]).toArray(function(err, results) {
+            res.send({ commentaire: results[0] });
+        });
+    });
+    
     app.get('/:login/:id', function(req, res) {
         db.collection('billets').aggregate([{
                 $lookup: {
@@ -135,22 +152,22 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
         });
     });
 
-    app.get('/commentaire/:id', function(req, res) {
-        db.collection('comments').aggregate([{
-                $lookup: {
-                    from: "billets",
-                    localField: "pour",
-                    foreignField: "_id",
-                    as: "billet"
-                }
-            },
-            {
-                $match: { _id: ObjectId(req.params.id) }
+    app.post('/:login/:id', function(req, res) {
+        db.collection('comments').insertOne({
+            commentaire: req.body.commentaire,
+            de: req.body.de,
+            pour: ObjectId(req.body.pour),
+        }, function(err, inserted) {
+            if (err) {
+                res.send(false);
+            } else {
+                res.send(true);
             }
-        ]).toArray(function(err, results) {
-            res.send({ commentaire: results[0] });
         });
     });
+
+
+  
 
 
 });

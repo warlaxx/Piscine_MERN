@@ -27,11 +27,11 @@ class App extends Component {
     return (
       <div className="App">
         <Router>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light"> <div class="navbar-nav"> 
-            <Link class="nav-item nav-link" to="/">Home</Link>
-            <Link class="nav-item nav-link" to="/register">Register</Link>
-            <Link class="nav-item nav-link" to="/login">Login</Link>
-            <Link class="nav-item nav-link" to="/logout">Logout</Link>
+        <nav className="navbar navbar-expand-lg navbar-light bg-light"> <div className="navbar-nav"> 
+            <Link className="nav-item nav-link" to="/">Home</Link>
+            <Link className="nav-item nav-link" to="/register">Register</Link>
+            <Link className="nav-item nav-link" to="/login">Login</Link>
+            <Link className="nav-item nav-link" to="/logout">Logout</Link>
           </div>
    </nav>
         <Switch>
@@ -82,14 +82,13 @@ class Register extends React.Component {
         .then(response=>console.log(response))
         .catch(e=>console.log(e))
   }
-
   render() {
     return (
       <form onSubmit={this.handleRegister}>
-            <label for="register[login]">Login</label><input type="text"  ref="usernameItem"/><br/>
-            <label for="register[email]">email</label><input type="email"  ref="emailItem"/><br/>
-            <label for="register[password]">Password</label><input type="password" ref="passwordItem"/><br/>
-            <label for="register[passwordconfirm]">Password Confirm</label><input type="password" ref="passwordconfItem"/><br/>
+            <label htmlFor="register[login]">Login</label><input type="text"  ref="usernameItem"/><br/>
+            <label htmlFor="register[email]">email</label><input type="email"  ref="emailItem"/><br/>
+            <label htmlFor="register[password]">Password</label><input type="password" ref="passwordItem"/><br/>
+            <label htmlFor="register[passwordconfirm]">Password Confirm</label><input type="password" ref="passwordconfItem"/><br/>
             <input type="submit" value="Submit"/></form>)
   }
 }
@@ -121,8 +120,8 @@ class Login extends React.Component {
   render() {
     return (
  <form onSubmit={this.handleLogin}>
-            <label for="login[email]">email</label><input type="email" ref="emailItem" name="login[email]"/><br/>
-            <label for="login[password]">Password</label><input type="password" ref="passwordItem" name="login[password]"/><br/>
+            <label htmlFor="login[email]">email</label><input type="email" ref="emailItem" name="login[email]"/><br/>
+            <label htmlFor="login[password]">Password</label><input type="password" ref="passwordItem" name="login[password]"/><br/>
             <input type="submit" value="Submit"/></form>)
   }
 }
@@ -135,23 +134,17 @@ class Dashboard extends React.Component {constructor() {
     }
   }
   render() {
-    // console.log(this.props.match.params.handle);
-    // console.log(cookies.get('type'));
-              // console.log(cookies.get('login'));
-    console.log( this.state );
     if (cookies.get('id')) {
        if (cookies.get('login') === this.props.match.params.handle) {
          return (
-          <div class="container">
+          <div className="container">
           <h1>Bienvenue {cookies.get('login')}!</h1>
           </div>
           )
        }
        else {
-
-         
          return (
-          <div class="container">
+          <div className="container">
              <h1>Bienvenue sur le blog de {this.props.match.params.handle} !</h1>
              <a href={"http://localhost:3000/all/"+ this.props.match.params.handle}>voir tous ses billets</a>
           </div>
@@ -201,8 +194,8 @@ class CreateBillet extends React.Component {
       return (
         <form onSubmit={this.handleCreate}>
       <h2>creer un billet {new Date().getDate()}</h2>
-          <label for="titre">Titre</label><input type="text" name="titre" ref="titreItem" /><br />
-          <label for="contenu">contenu</label><textarea type="textarea" name="contenu" ref="contenuItem" /><br />
+          <label htmlFor="titre">Titre</label><input type="text" name="titre" ref="titreItem" /><br />
+          <label htmlFor="contenu">contenu</label><textarea type="textarea" name="contenu" ref="contenuItem" /><br />
           <input type="submit" value="Submit" /></form>)
     }
     else {
@@ -216,30 +209,66 @@ class Billet extends React.Component {
    if (this.props.auteur === cookies.get('id')) 
    {
       return (
-      <div class="container"> <div class="card">
-          <div class="card-header">
+      <div className="container"> <div className="card">
+          <div className="card-header">
           <a href={"http://localhost:3000/billet/" + this.props.id}> {this.props.titre}</a>
-          <div class="float-right">
+          <div className="float-right">
             <a href={"http://localhost:3000/billet/edit/" + this.props.id}>editer </a>
             <a href={"http://localhost:3000/billet/delete/" + this.props.id}> supprimer</a>
           </div></div>
-      <div class="card-body">       
-      <h6 class="card-subtitle mb-2 text-muted">{this.props.date}</h6>
-      <div class="card-text">{this.props.contenu}</div>   
+      <div className="card-body">       
+      <h6 className="card-subtitle mb-2 text-muted">{this.props.date}</h6>
+      <div className="card-text">{this.props.contenu}</div>   
       </div></div>
       </div>
       )
    } else 
    {
         return (
-        <div class="container">      <div class="card">
-        <div class="card-header"><a href={"http://localhost:3000/billet/" + this.props.id}> {this.props.titre}</a></div>
-        <div class="card-body">       
-        <h6 class="card-subtitle mb-2 text-muted">{this.props.date}</h6>
-        <div class="card-text">{this.props.contenu}</div>   
+        <div className="container">      <div className="card">
+        <div className="card-header"><a href={"http://localhost:3000/billet/" + this.props.id}> {this.props.titre}</a></div>
+        <div className="card-body">       
+        <h6 className="card-subtitle mb-2 text-muted">{this.props.date}</h6>
+        <div className="card-text">{this.props.contenu}</div>   
         </div></div>
         </div>
         )}
+  }
+}
+
+class CreateComment extends React.Component {
+  handleAddCommet = (e) => {
+    e.preventDefault();
+    var data = {
+      commentaire: this.refs.commentaireItem.value,  
+      pour: this.props.id,
+      de: cookies.get('login')
+          }  
+    var url = 'http://localhost:3000/billet/'+ this.props.id;
+    console.log(url)
+    axios.post(url,data)
+      .then(function (response) {
+        console.log(response);
+        if (response.data === true) {
+          window.location.reload();
+        }
+        else {
+          alert ("Impossible de creer un billet, réssayez")
+        }
+      })
+    .catch(e => console.log(e))
+  }
+
+  render() {
+    return (
+      <form onSubmit={this.handleAddCommet}>
+      <div className="form-group text-left">
+      <small> <label htmlFor="exampleInputEmail1">Ajouter un commentaire</label></small></div>
+      <textarea  style={{width: '100%'}} className="form-control-lg" rows="5" ref="commentaireItem"></textarea>
+      <div className="form-group  text-left">
+      <button type="submit" className="btn btn-primary">Submit</button></div>
+      </form>
+    )
   }
 }
 
@@ -248,19 +277,20 @@ class BilletDetails extends React.Component {
    if (this.props.auteur === cookies.get('id')) 
    {
       return (
-        <div class="container">      
-          <div class="card">
-            <div class="card-header">
-              <a href={"http://localhost:3000/billet/" + this.props.id}> {this.props.titre}</a><div class="float-right">
+        <div className="container">      
+          <div className="card">
+            <div className="card-header">
+              <a href={"http://localhost:3000/billet/" + this.props.id}> {this.props.titre}</a><div className="float-right">
             <a href={"http://localhost:3000/billet/edit/" + this.props.id}>editer </a>
             <a href={"http://localhost:3000/billet/delete/" + this.props.id}> supprimer</a>
           </div>
             </div>
-            <div class="card-body">       
-              <h6 class="card-subtitle mb-2 text-muted">{this.props.date}</h6>
-              <div class="card-text">{this.props.contenu}</div>   
+            <div className="card-body">       
+              <h6 className="card-subtitle mb-2 text-muted">{this.props.date}</h6>
+              <div className="card-text">{this.props.contenu}</div>   
             </div>
-           <div class="list-group list-group-flush"> {this.props.comments.map((e) => {
+            <div className="card-footer"><CreateComment id={this.props.id}/></div>
+           <div className="list-group list-group-flush"> {this.props.comments.map((e) => {
               console.log(e.commentaire)
           return (
             <Comments auteurcomment={e.de} commentaire={e.commentaire} id={e._id} auteurarticle={this.props.auteur}/>
@@ -272,17 +302,17 @@ class BilletDetails extends React.Component {
       )
    } else  {
         return (
-        <div class="container">      
-          <div class="card">
-            <div class="card-header">
+        <div className="container">      
+          <div className="card">
+            <div className="card-header">
               <a href={"http://localhost:3000/billet/" + this.props.id}> {this.props.titre}</a>
             </div>
-            <div class="card-body">       
-              <h6 class="card-subtitle mb-2 text-muted">{this.props.date}</h6>
-              <div class="card-text">{this.props.contenu}</div>   
+            <div className="card-body">       
+              <h6 className="card-subtitle mb-2 text-muted">{this.props.date}</h6>
+              <div className="card-text">{this.props.contenu}</div>   
             </div>
-           <div class="list-group list-group-flush"> {this.props.comments.map((e) => {
-              console.log(e.commentaire)
+            <div className="card-footer"><CreateComment id={this.props.id}/></div>
+           <div className="list-group list-group-flush"> {this.props.comments.map((e) => {
           return (
             <Comments auteurcomment={e.de} commentaire={e.commentaire} id={e._id} auteurarticle={this.props.auteur}/>
          )
@@ -296,28 +326,27 @@ class BilletDetails extends React.Component {
 
 class Comments extends React.Component {
  render() {
-   console.log(this.props.id)
    if(this.props.auteurarticle === cookies.get('id')) { 
     return (  
-      <div class="card">
-      <div class="card-header">
-      <div class="card-title">
-      <div class="card-text float-left">{this.props.auteurcomment} </div>
-      <div class="float-right"><a href={"http://localhost:3000/commentaire/delete/" + this.props.id}> supprimer</a></div>
+      <div className="card">
+      <div className="card-header">
+      <div className="card-title">
+      <div className="card-text float-left">{this.props.auteurcomment} </div>
+      <div className="float-right"><a href={"http://localhost:3000/commentaire/delete/" + this.props.id}> supprimer</a></div>
       </div>
-      </div><div class="card-body">
-      <div class="card-text">{this.props.commentaire}</div>
+      </div><div className="card-body">
+      <div className="card-text">{this.props.commentaire}</div>
       </div>
       </div>)
   } else {
       return (  
-        <div class="card">
-        <div class="card-header">
-        <div class="card-title">
-        <div class="card-text float-left">{this.props.auteurcomment}</div>
+        <div className="card">
+        <div className="card-header">
+        <div className="card-title">
+        <div className="card-text float-left">{this.props.auteurcomment}</div>
         </div>
-        </div><div class="card-body">
-        <div class="card-text">{this.props.commentaire}</div>
+        </div><div className="card-body">
+        <div className="card-text">{this.props.commentaire}</div>
         </div>
         </div>)
    }
@@ -395,8 +424,8 @@ class Edit extends React.Component {
 		return(
       <form onSubmit={this.handleEdit}>
       <h2>editer un billet {new Date().getDate()}</h2>
-          <label for="titre">Titre</label><input type="text" name="titre" ref="titreItem" defaultValue={this.state.billets.titre}/><br />
-          <label for="contenu">contenu</label><textarea type="textarea" name="contenu" ref="contenuItem" defaultValue={this.state.billets.contenu}/><br />
+          <label htmlFor="titre">Titre</label><input type="text" name="titre" ref="titreItem" defaultValue={this.state.billets.titre}/><br />
+          <label htmlFor="contenu">contenu</label><textarea type="textarea" name="contenu" ref="contenuItem" defaultValue={this.state.billets.contenu}/><br />
           <input type="submit" value="Submit" /></form>
 		)
 	}
@@ -438,7 +467,7 @@ class DeleteBillet extends React.Component {
   } 
 
   render() {
-   if (this.state.billets.user!==undefined)
+   if (this.state.billets.user  !==  undefined)
    {
     if (this.state.billets.user === cookies.get('id'))
     {
@@ -485,24 +514,26 @@ class DeleteCommentaire extends React.Component {
 
   componentDidMount() {
   axios.get("http://localhost:3000/commentaire/"+this.props.match.params.handle).then((data) => {
-    this.setState({ commentaires: data.data.commentaire });
-    this.setState({ billet: data.data.commentaire.billet[0] });
+    // this.setState({ commentaires: data.data.commentaire });
+    // this.setState({ billet: data.data.commentaire.billet[0] });
+    console.log(data)
   });
   } 
 
   render() {
-   if (this.state.commentaires.de!==undefined && this.state.billet.user!==undefined)
-   { 
-    if ( (this.state.commentaires.de === cookies.get('login')) || cookies.get('id') ===  this.state.billet.user)
-      {
-        return (
-          <form onSubmit={this.handleSuppression}>
-           Voulez-vous supprimer ce commentaire ?
-          <input type="submit" value="Submit"/></form>)
-      } else {
-               window.location = "/"+cookies.get('login');
-      }
-   }
+    console.log(this.state.commentaires);
+  //  if (this.state.commentaires.de  !==  undefined && this.state.billet.user  !==  undefined)
+  //  { 
+  //   if ( (this.state.commentaires.de === cookies.get('login')) || cookies.get('id') ===  this.state.billet.user)
+  //     {
+  //       return (
+  //         <form onSubmit={this.handleSuppression}>
+  //          Voulez-vous supprimer ce commentaire ?
+  //         <input type="submit" value="Submit"/></form>)
+  //     } else {
+  //              window.location = "/"+cookies.get('login');
+  //     }
+  //  }
   return ('Pas les droit')
   }
 }
