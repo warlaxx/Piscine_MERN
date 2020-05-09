@@ -71,6 +71,7 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
             titre: req.body.titre,
             contenu: req.body.contenu,
             user: ObjectId(req.body.user),
+            categories: req.body.categories,
             date: new Date(Date.now()).toISOString()
         }, function(err, inserted) {
             if (err) {
@@ -92,14 +93,15 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
         }, {
             $set: {
                 titre: req.body.titre,
-                contenu: req.body.contenu
+                contenu: req.body.contenu,
+                categories: [req.body.categories]
             }
         }, function(err, inserted) {
             if (err) {
                 console.log(err);
                 res.send(false);
             } else {
-                console.log(req.body.contenu)
+                console.log(req.body.categories)
                 res.send(true);
             }
         });
@@ -140,12 +142,12 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
 
 
     });
-   
+
     app.post('/all/:login', function(req, res) {
         console.log(req.body)
 
         db.collection("membres").find({ login: req.params.login }).toArray(function(err, data) {
-            db.collection("billets").find( {$and: [ {$or: [{ titre: new RegExp(req.body.recherche, "i") },{ contenu: new RegExp(req.body.recherche, "i") }]},{ user: data[0]["_id"] }]}).toArray(function(err, results) {
+            db.collection("billets").find({ $and: [{ $or: [{ titre: new RegExp(req.body.recherche, "i") }, { contenu: new RegExp(req.body.recherche, "i") }] }, { user: data[0]["_id"] }] }).toArray(function(err, results) {
                 console.log(results)
                 res.send({ resultats: results });
             });
@@ -200,9 +202,5 @@ MongoClient.connect('mongodb://localhost:27017/mern-pool', { useUnifiedTopology:
             }
         });
     });
-
-
-
-
 
 });

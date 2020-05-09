@@ -108,7 +108,7 @@ class Register extends React.Component {
               }
        var url = 'http://localhost:3000/register';
        axios.post(url,data)
-        .then(response=>console.log(response))
+        .then(response=>console.log("ok"))
         .catch(e=>console.log(e))
   }
   render() {
@@ -132,7 +132,6 @@ class Login extends React.Component {
        var url = 'http://localhost:3000/login';
        axios.post(url,data)
          .then(function (response) {
-           console.log(response);
            if (response.data.good === true) {
              cookies.set('id', response.data.data.id, { path: '/' });
              cookies.set('type', response.data.data.type, { path: '/' });
@@ -199,15 +198,18 @@ class Logout extends React.Component {
 class CreateBillet extends React.Component {
   handleCreate = (e) => {
     e.preventDefault();
+
+var categoriesarray = this.refs.categoriesItem.value.split(',');
+
     var data = {
       titre: this.refs.titreItem.value,  
       contenu: this.refs.contenuItem.value,
+      categories: categoriesarray,
       user: cookies.get('id')
           }  
     var url = 'http://localhost:3000/billet/create';
     axios.post(url,data)
       .then(function (response) {
-        console.log(response);
         if (response.data === true) {
           window.location = "/all/"+cookies.get('login');
         }
@@ -225,6 +227,8 @@ class CreateBillet extends React.Component {
       <h2>creer un billet {new Date().getDate()}</h2>
           <label htmlFor="titre">Titre</label><input type="text" name="titre" ref="titreItem" /><br />
           <label htmlFor="contenu">contenu</label><textarea type="textarea" name="contenu" ref="contenuItem" /><br />
+          <label htmlFor="categories">categories</label><textarea type="textarea" name="categories" ref="categoriesItem" /><br />
+
           <input type="submit" value="Submit" /></form>)
     }
     else {
@@ -235,6 +239,8 @@ class CreateBillet extends React.Component {
 
 class Billet extends React.Component {
   render() {
+
+    const categories = this.props.categories || [];
    if (this.props.auteur === cookies.get('id')) 
    {
       return (
@@ -248,16 +254,30 @@ class Billet extends React.Component {
       <div className="card-body">       
       <h6 className="card-subtitle mb-2 text-muted">{this.props.date}</h6>
       <div className="card-text">{this.props.contenu}</div>   
-      </div></div>
+      </div>
+      <div className="card-footer"> 
+        {categories.map((e) => {
+            return (
+            <span>{e},</span>
+           )
+         })}
+         </div></div>
       )
    } else 
    {
         return (
-             <div className="card">
+        <div className="card">
         <div className="card-header"><a href={"http://localhost:3000/billet/" + this.props.id}> {this.props.titre}</a></div>
         <div className="card-body">       
         <h6 className="card-subtitle mb-2 text-muted">{this.props.date}</h6>
         <div className="card-text">{this.props.contenu}</div>   
+        <div className="card-footer"> 
+        {categories.map((e) => {
+            return (
+            <span>{e},</span>
+           )
+         })}
+         </div>
         </div></div>
         )}
   }
@@ -272,10 +292,8 @@ class CreateComment extends React.Component {
       de: cookies.get('login')
           }  
     var url = 'http://localhost:3000/billet/'+ this.props.id;
-    console.log(url)
     axios.post(url,data)
       .then(function (response) {
-        console.log(response);
         if (response.data === true) {
           window.location.reload();
         }
@@ -318,7 +336,6 @@ class BilletDetails extends React.Component {
             </div>
             <div className="card-footer"><CreateComment id={this.props.id}/></div>
            <div className="list-group list-group-flush"> {this.props.comments.map((e) => {
-              console.log(e.commentaire)
           return (
             <Comments auteurcomment={e.de} commentaire={e.commentaire} id={e._id} auteurarticle={this.props.auteur}/>
          )
@@ -380,7 +397,6 @@ class Comments extends React.Component {
  }
 }
 
-
 class SeeAll extends React.Component {
   constructor() {
     super();
@@ -399,14 +415,9 @@ class SeeAll extends React.Component {
     var url = 'http://localhost:3000/all/'+ this.props.match.params.handle;
     axios.post(url,data)
       .then((data) => {
-        console.log(data.data.resultats.length);
        if (data.data.resultats.length > 0) {
         this.setState({ new: data.data.resultats});
-
-       } else {
-        console.log("vide")
-
-       }
+       } 
       })
     .catch(e => console.log(e))
   }
@@ -415,6 +426,7 @@ class SeeAll extends React.Component {
     axios.get("http://localhost:5000/all/"+this.props.match.params.handle).then((data) => {
       this.setState({ user: data.data.user[0]});
       this.setState({ billets: data.data.user[0].billets});
+      
     })
   } 
   
@@ -432,7 +444,7 @@ class SeeAll extends React.Component {
         </nav>
         {this.state.new.map((e) => {
             return (
-              <Billet id={e._id} titre={e.titre} contenu={e.contenu} auteur={e.user}/>
+              <Billet id={e._id} titre={e.titre} contensu={e.contenu} auteur={e.user} categories={e.categories}/>
            )
          })}
         </div>
@@ -451,7 +463,7 @@ class SeeAll extends React.Component {
       </nav>
 			{this.state.billets.map((e) => {
           return (
-            <Billet id={e._id} titre={e.titre} contenu={e.contenu} auteur={e.user}/>
+          <div>  <Billet id={e._id} titre={e.titre} contenu={e.contenu} auteur={e.user}  categories={e.categories}/><br/></div>
          )
        })}
 			</div>
@@ -461,8 +473,6 @@ class SeeAll extends React.Component {
   
 }
 
-
-
 class Edit extends React.Component {
   constructor() {
     super();
@@ -471,18 +481,20 @@ class Edit extends React.Component {
       billets: [],
     }
   }
-
   handleEdit = (e) => {
     e.preventDefault();
+
+var categoriesarray = this.refs.categoriesItem.value.split(',');
     var data = {
       titre: this.refs.titreItem.value,  
       contenu: this.refs.contenuItem.value,
+categories: categoriesarray
       }  
 
+      console.log(categoriesarray);
     var url = 'http://localhost:3000/billet/edit/'+this.props.match.params.handle;
     axios.post(url,data)
       .then(function (response) {
-        console.log(response);
         if (response.data === true) {
           window.location = "/all/"+cookies.get('login');
         }
@@ -496,7 +508,7 @@ class Edit extends React.Component {
   componentDidMount() {
     axios.get("http://localhost:5000/billet/"+this.props.match.params.handle).then((data) => {
       this.setState({ billets: data.data.billets[0] });
-      console.log(this.state.billets)
+      console.log(this.state.billets.categories)
     })
   } 
 
@@ -506,6 +518,8 @@ class Edit extends React.Component {
       <h2>editer un billet {new Date().getDate()}</h2>
           <label htmlFor="titre">Titre</label><input type="text" name="titre" ref="titreItem" defaultValue={this.state.billets.titre}/><br />
           <label htmlFor="contenu">contenu</label><textarea type="textarea" name="contenu" ref="contenuItem" defaultValue={this.state.billets.contenu}/><br />
+          <label htmlFor="categories">categories</label><textarea type="textarea" name="categories" ref="categoriesItem" defaultValue={this.state.billets.categories}/><br />
+
           <input type="submit" value="Submit" /></form>
 		)
 	}
@@ -527,7 +541,6 @@ class DeleteBillet extends React.Component {
          var url = 'http://localhost:3000/billet/delete/'+this.props.match.params.handle;
       axios.post(url,data)
         .then(function (response) {
-          console.log(response);
           if (response.data === true) {
             window.location = "/all/"+cookies.get('login');
           }
@@ -541,7 +554,6 @@ class DeleteBillet extends React.Component {
   componentDidMount() {
     axios.get("http://localhost:5000/billet/"+this.props.match.params.handle).then((data) => {
     this.setState({ billets: data.data.billets[0] });
-    console.log(this.state.billets);
   });
   } 
 
@@ -580,7 +592,6 @@ class DeleteCommentaire extends React.Component {
          var url = 'http://localhost:3000/commentaire/delete/'+this.props.match.params.handle;
          axios.post(url,data)
         .then(function (response) {
-          console.log(response);
           if (response.data === true) {
             window.location = "/all/"+cookies.get('login');
           }
@@ -595,7 +606,6 @@ class DeleteCommentaire extends React.Component {
   axios.get("http://localhost:3000/commentaire/"+this.props.match.params.handle).then((data) => {
     this.setState({ commentaires: data.data.commentaire });
     this.setState({ billet: data.data.commentaire.billet[0] });
-    console.log(this.state)
   });
   } 
 
@@ -627,7 +637,6 @@ class SeeOne extends React.Component {
     componentDidMount() {
     axios.get("http://localhost:5000/"+this.props.match.params.login+"/"+this.props.match.params.id).then((data) => {
       this.setState({ billets: data.data.billets });
-      console.log(this.state);
     })
   } 
   
